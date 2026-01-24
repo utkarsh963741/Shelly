@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"slices"
 	"strings"
 )
@@ -33,4 +35,12 @@ func executeType(args []string) {
 			fmt.Printf("%s: not found\n", command)
 		}
 	}
+}
+
+func executePwd() {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(currentDir)
 }
