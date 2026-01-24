@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var HOME string = os.Getenv("HOME")
+
 func executeEcho(args []string) {
 	output := ""
 	for i, arg := range args {
@@ -59,8 +61,18 @@ func executeCd(args []string) {
 	}
 
 	dir := args[0]
+
+	if dir == "~" {
+		err := os.Chdir(HOME)
+		if err != nil {
+			fmt.Printf("cd: %s: No such file or directory\n", dir)
+		}
+		return
+	}
+
 	err := os.Chdir(dir)
 	if err != nil {
 		fmt.Printf("cd: %s: No such file or directory\n", dir)
 	}
+
 }
