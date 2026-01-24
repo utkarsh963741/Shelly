@@ -44,3 +44,23 @@ func executePwd() {
 	}
 	fmt.Println(currentDir)
 }
+
+func executeCd(args []string) {
+	if len(args) == 0 {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = os.Chdir(homeDir)
+		if err != nil {
+			fmt.Printf("cd: %s: No such file or directory\n", homeDir)
+		}
+		return
+	}
+
+	dir := args[0]
+	err := os.Chdir(dir)
+	if err != nil {
+		fmt.Printf("cd: %s: No such file or directory\n", dir)
+	}
+}

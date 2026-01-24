@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var builtinCommands = []string{"echo", "type", "pwd", "exit"}
+var builtinCommands = []string{"echo", "type", "pwd", "cd", "exit"}
 
 func runShell() {
 	reader := bufio.NewReader(os.Stdin)
@@ -31,6 +31,8 @@ inputLoop:
 			executeType(fields[1:])
 		case "pwd":
 			executePwd()
+		case "cd":
+			executeCd(fields[1:])
 		case "exit":
 			break inputLoop
 		default:
