@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
+	"runtime"
 	"slices"
 	"strings"
 )
@@ -11,19 +14,48 @@ import (
 var PATH string = os.Getenv("PATH")
 
 func checkIfExecutable(command string) (bool, string) {
-	paths := strings.Split(PATH, ":")
+	currOS := runtime.GOOS
+	delimiter := string(os.PathSeparator)
+	seperator := string(os.PathListSeparator)
+	extension := ""
+
+	switch currOS {
+	case "windows":
+		{
+			// fmt.Println("Running on Windows")
+			delimiter = "\\"
+			seperator = ";"
+			extension = ".exe"
+		}
+
+	case "linux":
+		{
+			// fmt.Println("Running on Linux")
+			delimiter = "/"
+			seperator = ":"
+			extension = ""
+		}
+
+	default:
+		fmt.Printf("Running on %s\n", currOS)
+
+	}
+
+	paths := strings.Split(PATH, seperator)
 	for _, dir := range paths {
-		filePath := fmt.Sprintf("%s/%s", dir, command)
+		filePath := fmt.Sprintf("%s%s%s%s", dir, delimiter, command, extension)
 		if info, err := os.Stat(filePath); err == nil {
 
-			const (
-				ExecAny os.FileMode = 0111 // Any execute permission
-			)
-
-			mode := info.Mode().Perm()
-
-			if mode&ExecAny != 0 {
+			if currOS == "windows" {
 				return true, filePath
+			} else {
+				const (
+					ExecAny os.FileMode = 0111 // Any execute permission
+				)
+				mode := info.Mode().Perm()
+				if mode&ExecAny != 0 {
+					return true, filePath
+				}
 			}
 		}
 	}
@@ -63,7 +95,20 @@ inputLoop:
 				}
 			}
 		default:
-			fmt.Printf("%s: command not found\n", command)
+			if found, _ := checkIfExecutable(command); found {
+				args := fields[1:]
+				cmd := exec.Command(command, args...)
+
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+
+				err := cmd.Run()
+				if err != nil {
+					log.Fatalf("%s failed with %s\n", command, err)
+				}
+			} else {
+				fmt.Printf("%s: command not found\n", command)
+			}
 		}
 	}
 
