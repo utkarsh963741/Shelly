@@ -17,11 +17,13 @@ inputLoop:
 		fmt.Print("$ ")
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSpace(input)
+		// fields := strings.Fields(input)
 
-		fields := strings.Fields(input)
-		if len(fields) == 0 {
+		fields, err := filterFields(input)
+		if err {
 			continue
 		}
+
 		command := fields[0]
 
 		switch command {
